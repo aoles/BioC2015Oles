@@ -1,0 +1,10 @@
+Package: BioC2015Oles
+Encoding: UTF-8
+Title: Basics of image data and spatial patterns analysis in R
+Version: 0.0.1
+Author: Andrzej Oleś and Wolfgang Huber
+Description: We demonstrate how image data can be processed in R, how quantitative information can be extracted from images, and how statistical methods can be used to explore and understand the data. In particular, we use EBImage to load and display images in R, and to manipulate, transform and apply filters to them. Using microscopy of cellular assays as an example, we show how to perform image segmentation followed by the extraction of quantitative object characteristics. Such information can be then used for downstream analyses, for example, analysis of spatial point patterns with the help of spatstat.
+Maintainer: Andrzej Oleś <andrzej.oles@embl.de>
+License: LGPL
+VignetteBuilder: knitr
+Suggests: BiocStyle, EBImage, knitr, RColorBrewer, rmarkdown, spatstat

@@ -1,0 +1,43 @@
+pre {
+  font-size: 18px;
+  line-height: 21px;
+}
+iframe {
+  height: 615px;
+  width: 100%;
+  margin-top: -45px;
+}
+.title-slide hgroup h1 {
+  color: #1a81c2;
+  font-size: 54px;
+}
+.title-slide hgroup p {
+    font-size: 32px;
+    color: rgb(0,0,0);
+}
+h2 {
+  color: #87b13f;
+}
+h3 {
+  color: #1a81c2;
+}
+slides > slide {
+    color: rgb(0,0,0);
+}
+ul > li:before {
+    content: "•";
+    color: #1a81c2;
+    vertical-align: middle;
+    font-family: "Arial Black";
+    font-weight: 900;
+    margin-left: -.85em;
+}
+label {
+  font-size: 150%;
+}
+slides > slide {
+    width: 1024px;
+    height: 768px;
+    margin-left: -512px;
+    margin-top: -384px;
+}

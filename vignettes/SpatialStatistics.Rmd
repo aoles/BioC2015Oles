@@ -1,0 +1,214 @@
+---
+title: "Basics of image data and spatial patterns analysis in R"
+author: "Andrzej Oleś and Wolfgang Huber"
+date: '`r format(Sys.Date(), "%d %B %Y")`'
+output:
+  ioslides_presentation:
+    fig_retina: null
+    css: style.css
+    widescreen: false
+bibliography: BioC2015Oles.bib
+vignette: >
+  %\VignetteIndexEntry{Basics of image data and spatial patterns analysis in R}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r echo=FALSE, message=FALSE}
+library(EBImage)
+library(knitr)
+
+.dpi = 10
+opts_chunk$set(collapse=FALSE, prompt=TRUE, comment=NA)
+```
+
+# Spatial statistics: point processes 
+
+Spatial distribution of the position
+
+## Interaction between immune and cancer cells
+
+Lymph nodes
+
+- immunologic filter composed of B and T cells, dendric cells (DC) and macrophages
+- clinical significance in cancer staging
+
+<table style="border-spacing: 30px; border-collapse: separate;">
+<tr><td>
+```{r, echo=FALSE}
+.lymphnode = readImage( system.file("images", "testscan_1_2_RGB99-4525D.jpg", package = "BioC2015Oles") )
+```{r, echo=FALSE, fig.width=dim(.lymphnode)[1L]/(4*.dpi), fig.height=dim(.lymphnode)[2L]/(4*.dpi), dpi=.dpi}
+display(.lymphnode)
+```
+</td><td style="vertical-align: bottom">
+<div style="font-size:80%">
+Breast cancer lymph node biopsy [@Setiadi2010].
+
+Cell typing was done by staining the cells with protein antibodies that provide specific signatures.
+</div>
+</td></tr>
+</table>
+
+## Lymph node biopsies
+
+```{r}
+data(brcalymphnode, package = "BioC2015Oles")
+head(brcalymphnode)
+nrow(brcalymphnode)
+table(brcalymphnode$class)
+```
+
+## Spatial distribution of cells
+
+Plot of the *x* and *y* positions of the T cells (left) and tumor cells (right).
+
+```{r, fig.width=7, fig.height=3.5}
+par(mfrow = c(1,2), mar = c(4.5, 4.5, 0.5, 0.5))
+xlim = range(brcalymphnode$x)
+ylim = range(brcalymphnode$y)
+cols = c(`T_cells` = "dodgerblue4", `Tumor` = "darkmagenta")
+for(i in seq_along(cols))
+  plot(subset(brcalymphnode, class==names(cols)[i])[, c("x", "y")], 
+       pch = ".", asp = 1, xlim = xlim, ylim = ylim, col = cols[i])
+```
+
+## Analysis of spatial point patterns
+
+Marked spatial point process:
+
+- set of isolated points located in a mathematical space `(xlim, ylim)`
+- points marked with certain properties (factor `class`)
+
+
+```{r, message=FALSE}
+library("spatstat")
+
+ln = with(brcalymphnode, 
+          ppp(x = x, y = y, marks = class, xrange = xlim, yrange = ylim) )
+ln
+```
+
+## Convex hull
+
+```{r, fig.width=2, fig.height=2}
+chull = convexhull(ln)
+par( mar = c(0, 0, 0, 0) )
+plot(Window(ln), main = NULL, asp = 1)
+plot(chull, lty = 2, col = "lightblue", add = TRUE)
+Window(ln) = chull
+ln
+```
+
+## First order effects: the intensity
+
+Number of points lying in a circle of area $a$ around a point $p=(x,y)$:
+$$N(p, a)$$
+
+Local intensity:
+<div style="font-size:80%">
+$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a},$$
+
+For a stationary process $\lambda(p) = \text{const.}$; then the intensity in an area $A$ is proportional to the area:
+$E(N(\cdot, A)) = \lambda A$. 
+</div>
+
+## Estimating the intensity
+
+<p>
+Kernel smoothed intensity estimate of a point pattern [@Diggle1985]
+
+<div style="font-size:80%">
+$$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i),$$
+where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
+</div>
+</p>
+```{r density.ppp1, fig.width=9.5, fig.height=2}
+par(mfrow = c(1,2), mar = c(0, 0, 0, 2))
+
+plot( density(subset(ln, marks=="Tumor"), edge = TRUE, diggle = TRUE), main = NULL )
+plot( density(subset(ln, marks=="Tumor"), edge = FALSE), main = NULL )
+```
+
+## Probability of cell classes
+
+Estimate of the spatially-varying probability of a particular event type.
+
+```{r}
+plot( relrisk(ln, sigma = 250), main = NULL, mfrow = c(1, 4) )
+```
+
+## Second order effects: clustering
+
+Spatial clustering (or anticlustering) of points: whether and to what extent neighbouring points are more/less dense than expected by chance.
+
+The nearest neighbour (NN) distance distribution function $G$
+
+- cumulative distribution function of the distance $W$ from a typical random point to its nearest neigbour.
+
+Homogenous Poisson process
+
+$$G(r) = P(W\leq r) = 1-e^{-\lambda \pi r^2}.$$
+
+## Estimation of the NN distance function *G*
+
+```{r Gest}
+gln = Gest(ln)
+gln
+```   
+
+## Estimation of the NN distance function *G*
+
+```{r, fig.width=5, fig.height=5, message=FALSE}
+library(RColorBrewer)
+
+plot(gln, lty = 1, col = brewer.pal(4, "Set1"))
+```
+
+- effect of finite cell size
+- clustering at large distances
+
+## Ripley's *K* function
+
+The *K* function of a stationary point process is defined so that $\lambda K(r)$ is the expected number of 
+additional points within a distance $r$ of a given, randomly picked point. 
+
+Generalization to inhomogenous point processes:
+
+$$K_{\mbox{\scriptsize inhom}}(r)= \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$
+
+where $d(p_i, p_j)$ is the distance between points $p_i$ and $p_j$, and 
+$e(p_i, p_j, r)$ is an edge correction factor.
+
+More useful for estimation and visualisation is the $L$ function:
+
+$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$
+
+For a Poisson point pattern, the theoretical value is $L(r) = r$. 
+
+## Estimate of the inhomogeneous *L*-function
+
+```{r, eval=FALSE}
+Lln = Linhom( subset(ln, marks=="T_cells") )
+Lln
+```{r, echo=FALSE}
+data(Lln, package = "BioC2015Oles")
+Lln
+```
+
+## Ripley's *K* function
+
+```{r, fig.width=5, fig.height=5}
+plot(Lln, lty = 1, col = brewer.pal(3, "Set1"))
+```   
+
+## Pair correlation function
+
+```{r, eval=FALSE}
+pcfln = pcf( Kinhom(subset(ln, marks=="T_cells")) )
+plot(pcfln, lty = 1, log = "x")
+```{r, fig.width=5, fig.height=5, echo=FALSE}
+data(pcfln, package = "BioC2015Oles")
+plot(pcfln, lty = 1, log = "x")
+```
+
+## References

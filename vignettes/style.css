@@ -41,3 +41,9 @@ slides > slide {
     margin-left: -512px;
     margin-top: -384px;
 }
+img {
+  margin: 10px 0px 20px 0px;
+}
+.prettyprint {
+    margin-bottom: 0px;
+}

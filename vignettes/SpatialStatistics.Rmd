@@ -17,6 +17,7 @@ vignette: >
 ```{r echo=FALSE, message=FALSE}
 library(EBImage)
 library(knitr)
+library(graphics)
 
 .dpi = 10
 opts_chunk$set(collapse=FALSE, prompt=TRUE, comment=NA)
@@ -122,19 +123,21 @@ $$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i),$$
 where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
 </div>
 </p>
-```{r density.ppp1, fig.width=9.5, fig.height=2}
-par(mfrow = c(1,2), mar = c(0, 0, 0, 2))
+```{r density.ppp1, fig.width=5, fig.height=3}
+densities = solist( density(subset(ln, marks=="Tumor"), edge = TRUE, diggle = TRUE),
+                    density(subset(ln, marks=="Tumor"), edge = FALSE) )
 
-plot( density(subset(ln, marks=="Tumor"), edge = TRUE, diggle = TRUE), main = NULL )
-plot( density(subset(ln, marks=="Tumor"), edge = FALSE), main = NULL )
+plot(densities, equal.ribbon=TRUE, col=topo.colors, main = "")
 ```
 
 ## Probability of cell classes
 
 Estimate of the spatially-varying probability of a particular event type.
 
-```{r}
-plot( relrisk(ln, sigma = 250), main = NULL, mfrow = c(1, 4) )
+```{r, fig.width=9.5, fig.height=3}
+rr = relrisk(ln, sigma = 250)
+
+plot(rr, equal.ribbon = TRUE, col = topo.colors, nrows = 1, main = "")
 ```
 
 ## Second order effects: clustering
@@ -158,10 +161,10 @@ gln
 
 ## Estimation of the NN distance function *G*
 
-```{r, fig.width=5, fig.height=5, message=FALSE}
+```{r, fig.width=4, fig.height=4, message=FALSE}
 library(RColorBrewer)
-
-plot(gln, lty = 1, col = brewer.pal(4, "Set1"))
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+plot(gln, lty = 1, col = brewer.pal(4, "Set1"), main = "", )
 ```
 
 - effect of finite cell size
@@ -197,8 +200,10 @@ Lln
 
 ## Ripley's *K* function
 
-```{r, fig.width=5, fig.height=5}
-plot(Lln, lty = 1, col = brewer.pal(3, "Set1"))
+```{r, fig.width=4.5, fig.height=4.5}
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+
+plot(Lln, lty = 1, col = brewer.pal(3, "Set1"), main = "")
 ```   
 
 ## Pair correlation function
@@ -206,9 +211,11 @@ plot(Lln, lty = 1, col = brewer.pal(3, "Set1"))
 ```{r, eval=FALSE}
 pcfln = pcf( Kinhom(subset(ln, marks=="T_cells")) )
 plot(pcfln, lty = 1, log = "x")
-```{r, fig.width=5, fig.height=5, echo=FALSE}
+```{r, fig.width=4.5, fig.height=4.5, echo=FALSE}
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+
 data(pcfln, package = "BioC2015Oles")
-plot(pcfln, lty = 1, log = "x")
+plot(pcfln, lty = 1, log = "x", main = "")
 ```
 
 ## References

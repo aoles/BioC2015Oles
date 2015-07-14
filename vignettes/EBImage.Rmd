@@ -52,19 +52,37 @@ Philip A. Marais<br/>
 </td></tr>
 </table>
 
-## Reading and displaying images
+## Let's get started!
 
 ```{r, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
 library(EBImage)
 
 f = system.file("images", "sample.png", package="EBImage")
 img = readImage(f)
+
 display(img)
 ```
 
-```{r, eval=FALSE}
+## Reading and displaying images
+
+### Reading images
+
+Images can be read from local files or URLs
+
+```{r, fig.width=480/.dpi, fig.height=138/.dpi, dpi=.dpi, eval=FALSE}
 bioc = readImage("http://www.bioconductor.org/images/logo/jpg/bioconductor_logo_rgb.jpg")
 display(bioc)
+```
+
+### Displaying images
+
+- using an intearactive JavaScript viewer
+- on R's build-in raster device
+
+To set the default `display` method use `options(EBImage.display)`
+
+```{r, eval=FALSE}
+options(EBImage.display = "raster")
 ```
 
 ## Adding text labels
@@ -196,9 +214,12 @@ display( tile(img_comb, numberOfFrames(img_comb), lwd=10, fg.col = "white") )
 
 ## Binary images
 
+Images which contain only two sets of pixels representing the background and foreground pixels.
+
 ```{r, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
 ( img_thresh = img > .5 )
 display( img_thresh )
+
 ```
 
 ## Spatial transformations
@@ -224,12 +245,11 @@ display(img_rotate)
 ## Spatial transformations
 ### Scaling
 
-```{r resize-pre, echo=FALSE}
+```{r resize, fig.width=512/.dpi, fig.height=256/.dpi, dpi=.dpi/2}
 img_resize = resize(img, w=512, h=256)
-```{r resize, eval=FALSE}
-img_resize = resize(img, w=512, h=256)
-display(img_resize )
-```{r resize-post, echo=FALSE, fig.width=dim(img_resize)[1L]/.dpi, fig.height=dim(img_resize)[2L]/.dpi, dpi=.dpi/2}
+display(img_resize)
+```{r resize2, fig.width=256/.dpi, fig.height=256/.dpi, dpi=.dpi/2}
+img_resize = resize(img, 256)
 display(img_resize)
 ```
 
@@ -280,7 +300,124 @@ imgcol_t = transpose(imgcol)
 display( imgcol_t )
 ```
 
-## Tresholding images
+## Linear filters
+
+Cleaning up local artifacts or noise through smoothing.
+
+<div style="font-size:80%">
+$$
+f'(x,y) = \frac{1}{N} \sum_{s=-a}^{a}\sum_{t=-a}^{a} f(x+s, y+t),
+$$
+where $f(x,y)$ is the value of the pixel at position $(x, y)$, $a$ determines the
+window size, which is $2a+1$ in each direction.  $N=(2a+1)^2$ is the number of pixels
+averaged over, and $f'$ is the new, smoothed image.
+
+### Generalization: weighted average using a weight function $w$
+$$
+(w * f)(x,y) = \sum_{s=-\infty}^{+\infty} \sum_{t=-\infty}^{+\infty} w(s,t)\, f(x+s, y+s)
+$$
+
+ - convolution of the images $f$ and $w$, indicated by $*$.
+ - linear: for any two images $f_1$, $f_2$ and numbers $c_1$, $c_2$. we have $$w*(c_1f_1+c_2f_2)=c_1w*f_1 + c_2w*f_2$$
+</div>
+
+## Generating the weight function
+
+The weight function can be generated using `makeBrush`.
+
+```{r, echo=FALSE}
+opts_knit$set(global.par=TRUE)
+```{r, echo=FALSE}
+.par=par(mai = c(.45, .75, 0.05, 0.05))
+```{r makeBrush, fig.width=3.8, fig.height=3.5, dev="svg", }
+w = makeBrush(size = 31, shape = 'gaussian', sigma = 5)
+plot(w[(nrow(w)+1)/2, ], ylab = "w", xlab = "")
+```
+
+Other available brush shapes: `"box` (default), `"disc"`, `"diamond"`, `"line"`
+
+
+## Low-pass filtering
+
+2D linear convolution is implemented by `filter2` (uses FFT).
+
+Smoothening the image using a Gaussian filter of width 5.
+
+```{r, echo=FALSE}
+opts_knit$set(global.par=FALSE)
+```{r lopass, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
+img_flo = filter2(img, w)
+display(img_flo)
+```
+
+## High-pass filtering
+
+Detecting edges and sharpening images.
+
+```{r highpass, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
+fhi = matrix(1, nrow = 3, ncol = 3)
+fhi[2, 2] = -8
+img_fhi = filter2(img, fhi)
+display(img_fhi)
+```
+
+## Median filter
+
+Non-linear noise removal technique
+
+- particularly effective in the case of speckle noise
+- preserves edges
+
+```{r medianFilter, fig.width=2*dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2, eval=FALSE}
+l = length(img)
+n = l/10
+img_noisy = img
+img_noisy[sample(l, n)] = runif(n, min=0, max=1)
+img_median = medianFilter(img_noisy, size = 1)
+
+display( combine(img_noisy, img_median), all=TRUE)
+```
+
+<div style="font-size:80%">Implemented using the constant time algorithm [@Perreault2007].</div>
+
+
+## Morphological operations | Non linear filtering of binary images 
+
+<span class=orange>erosion</span>/<span class=blue>dilation</span>: for every fg/bg pixel, put the mask around it, and if any pixel under the mask is from the bg/fg, set all these pixels to bg/fg.
+
+
+
+```{r, fig.width=(3*56+4*5)/.dpi, fig.height=(56+2*5)/.dpi, dpi=.dpi, out.width=2*(3*56+4*5)}
+leaf = readImage( system.file('images', 'leaf.png', package='BioC2015Oles') )
+kern = makeBrush(size = 3, shape = "disc")
+morph = combine(
+  leaf,
+  erode(leaf, kern),
+  dilate(leaf, kern) )
+
+display( tile(morph, nx = numberOfFrames(morph), lwd = 5, fg.col = "white") ) 
+```
+
+## Morphological operations
+
+- **<font class=blue>opening</font>:** erosion followed by dilation  
+  removes small objects from the background
+
+- **<font class=blue>closing</font>:** dilation followed by erosion  
+  fills holes in the foreground
+
+```{r, fig.width=(3*56+4*5)/.dpi, fig.height=(56+2*5)/.dpi, dpi=.dpi, out.width=2*(3*56+4*5)}
+morph = combine(
+  leaf,
+  opening(leaf, kern),
+  closing(leaf, kern) )
+
+display( tile(morph, nx = numberOfFrames(morph), lwd = 5, fg.col = "white") ) 
+```
+
+
+
+##
 
 Furthermore, we can crop and threshold images with standard matrix operations.
 
@@ -296,3 +433,4 @@ Thresholding returns an `Image` object with binarized pixels values.
 img_thresh
 ```
 
+## References

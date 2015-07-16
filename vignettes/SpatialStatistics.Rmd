@@ -17,7 +17,6 @@ vignette: >
 ```{r echo=FALSE, message=FALSE}
 library(EBImage)
 library(knitr)
-library(graphics)
 
 .dpi = 10
 opts_chunk$set(collapse=FALSE, prompt=TRUE, comment=NA)
@@ -25,14 +24,12 @@ opts_chunk$set(collapse=FALSE, prompt=TRUE, comment=NA)
 
 # Spatial statistics: point processes 
 
-Spatial distribution of the position
-
 ## Interaction between immune and cancer cells
 
 Lymph nodes
 
-- immunologic filter composed of B and T cells, dendric cells (DC) and macrophages
-- clinical significance in cancer staging
+- immunologic filter composed of B cells, T cells, dendric cells (DC) and macrophages
+- clinical significance in cancer staging (the *sentinel* lymph node)
 
 <table style="border-spacing: 30px; border-collapse: separate;">
 <tr><td>
@@ -61,10 +58,10 @@ table(brcalymphnode$class)
 
 ## Spatial distribution of cells
 
-Plot of the *x* and *y* positions of the T cells (left) and tumor cells (right).
+Plot of the *x* and *y* positions of the T cells (left) and tumor cells (right)
 
 ```{r, fig.width=7, fig.height=3.5}
-par(mfrow = c(1,2), mar = c(4.5, 4.5, 0.5, 0.5))
+par(mfrow = c(1, 2), mar = c(4.5, 4.5, 0.5, 0.5))
 xlim = range(brcalymphnode$x)
 ylim = range(brcalymphnode$y)
 cols = c(`T_cells` = "dodgerblue4", `Tumor` = "darkmagenta")
@@ -85,7 +82,9 @@ Marked spatial point process:
 library("spatstat")
 
 ln = with(brcalymphnode, 
-          ppp(x = x, y = y, marks = class, xrange = xlim, yrange = ylim) )
+  ppp(x = x, y = y, marks = class, xrange = xlim, yrange = ylim)
+)
+
 ln
 ```
 
@@ -93,7 +92,8 @@ ln
 
 ```{r, fig.width=2, fig.height=2}
 chull = convexhull(ln)
-par( mar = c(0, 0, 0, 0) )
+
+par(mar = c(0, 0, 0, 0))
 plot(Window(ln), main = NULL, asp = 1)
 plot(chull, lty = 2, col = "lightblue", add = TRUE)
 Window(ln) = chull
@@ -102,39 +102,36 @@ ln
 
 ## First order effects: the intensity
 
-Number of points lying in a circle of area $a$ around a point $p=(x,y)$:
+- Number of points lying in a circle of area $a$ around a point $p=(x,y)$
 $$N(p, a)$$
 
-Local intensity:
-<div style="font-size:80%">
-$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a},$$
+- Local intensity
+$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a}$$
 
-For a stationary process $\lambda(p) = \text{const.}$; then the intensity in an area $A$ is proportional to the area:
-$E(N(\cdot, A)) = \lambda A$. 
-</div>
+- For a *stationary* process, i.e., homogenous all over the region
+$$\lambda(p) = \text{const.}$$
+Then the intensity in an area $A$ is proportional to the area
+$$E(N(\cdot, A)) = \lambda A$$ 
 
 ## Estimating the intensity
 
-<p>
 Kernel smoothed intensity estimate of a point pattern [@Diggle1985]
+$$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i)$$
+<font style="font-size: 90%;">where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.</font>
 
-<div style="font-size:80%">
-$$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i),$$
-where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
-</div>
-</p>
-```{r density.ppp1, fig.width=5, fig.height=3}
-densities = solist( density(subset(ln, marks=="Tumor"), edge = TRUE, diggle = TRUE),
-                    density(subset(ln, marks=="Tumor"), edge = FALSE) )
-
-plot(densities, equal.ribbon=TRUE, col=topo.colors, main = "")
+```{r density.ppp1, fig.width=5.25, fig.height=2.65}
+densities = solist( 
+  `Diggle's edge correction` = density(subset(ln, marks=="Tumor"), diggle = TRUE),
+  `No edge correction`       = density(subset(ln, marks=="Tumor"), edge = FALSE)
+)
+plot(densities, equal.ribbon = TRUE, col = topo.colors, main = "")
 ```
 
 ## Probability of cell classes
 
-Estimate of the spatially-varying probability of a particular event type.
+Estimate of the spatially-varying probability of a particular event type
 
-```{r, fig.width=9.5, fig.height=3}
+```{r, fig.width=9.5, fig.height=2.8}
 rr = relrisk(ln, sigma = 250)
 
 plot(rr, equal.ribbon = TRUE, col = topo.colors, nrows = 1, main = "")
@@ -144,13 +141,19 @@ plot(rr, equal.ribbon = TRUE, col = topo.colors, nrows = 1, main = "")
 
 Spatial clustering (or anticlustering) of points: whether and to what extent neighbouring points are more/less dense than expected by chance.
 
-The nearest neighbour (NN) distance distribution function $G$
+### Poisson process
 
-- cumulative distribution function of the distance $W$ from a typical random point to its nearest neigbour.
+<div style="font-size: 90%;">
+- stationary with intensity $\lambda$
+- no dependency between occurences of objects in non-overlapping regions
+- $N(p, A)$ follows a Poisson distribution with rate $\lambda A$
+</div>
 
-Homogenous Poisson process
+### The nearest neighbour (NN) distance distribution function $G$
 
-$$G(r) = P(W\leq r) = 1-e^{-\lambda \pi r^2}.$$
+Cumulative distribution function of the distance $W$ from a typical random point to its nearest neigbour. For a Poisson process
+
+$$G(r) = P(W \leq r) = 1-e^{-\lambda \pi r^2}$$
 
 ## Estimation of the NN distance function *G*
 
@@ -164,25 +167,28 @@ gln
 ```{r, fig.width=4, fig.height=4, message=FALSE}
 library(RColorBrewer)
 par(mar = c(4.5, 4.5, 0.5, 0.5))
-plot(gln, lty = 1, col = brewer.pal(4, "Set1"), main = "", )
+
+plot(gln, lty = 1, col = brewer.pal(4, "Set1"), main = "")
 ```
 
+<div style="font-size: 90%;">
 - effect of finite cell size
 - clustering at large distances
+</div>
 
-## Ripley's *K* function
+## Ripley's *K*-function
 
-The *K* function of a stationary point process is defined so that $\lambda K(r)$ is the expected number of 
+For a stationary point process $\lambda K(r)$ is the expected number of 
 additional points within a distance $r$ of a given, randomly picked point. 
 
-Generalization to inhomogenous point processes:
+### Generalization to inhomogenous point processes
 
-$$K_{\mbox{\scriptsize inhom}}(r)= \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$
+$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$
 
 where $d(p_i, p_j)$ is the distance between points $p_i$ and $p_j$, and 
 $e(p_i, p_j, r)$ is an edge correction factor.
 
-More useful for estimation and visualisation is the $L$ function:
+More useful for estimation and visualisation is the $L$-function
 
 $$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$
 
@@ -198,7 +204,7 @@ data(Lln, package = "BioC2015Oles")
 Lln
 ```
 
-## Ripley's *K* function
+## Estimate of the inhomogeneous *L*-function
 
 ```{r, fig.width=4.5, fig.height=4.5}
 par(mar = c(4.5, 4.5, 0.5, 0.5))
@@ -208,8 +214,22 @@ plot(Lln, lty = 1, col = brewer.pal(3, "Set1"), main = "")
 
 ## Pair correlation function
 
+Describes how point density varies as a function of distance from a reference point.
+
+$$g(r)=\frac{1}{2\pi r}\frac{dK}{dr}(r)$$
+
+For a stationary Poisson process $g(r) = 1$. 
+
+<div style="font-size: 90%;">
+- $g(r) < 1$ - inhibition between points
+- $g(r) > 1$ - clustering
+</div>
+
+## Pair correlation function
+
 ```{r, eval=FALSE}
 pcfln = pcf( Kinhom(subset(ln, marks=="T_cells")) )
+
 plot(pcfln, lty = 1, log = "x")
 ```{r, fig.width=4.5, fig.height=4.5, echo=FALSE}
 par(mar = c(4.5, 4.5, 0.5, 0.5))
@@ -219,3 +239,4 @@ plot(pcfln, lty = 1, log = "x", main = "")
 ```
 
 ## References
+

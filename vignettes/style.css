@@ -2,6 +2,11 @@ pre {
   font-size: 18px;
   line-height: 21px;
 }
+code {
+  color: rgb(80, 80, 80);
+  background-color: rgb(230, 230, 230);
+  font-size: 90%;  
+}
 iframe {
   height: 615px;
   width: 100%;
@@ -41,7 +46,7 @@ slides > slide {
     margin-left: -512px;
     margin-top: -384px;
 }
-img {
+pre.prettyprint+img {
   margin: -10px 0px 20px 0px;
   image-rendering:optimizeSpeed;             /* Legal fallback                 */
   image-rendering:-moz-crisp-edges;          /* Firefox                        */

@@ -8,7 +8,7 @@
 #' @importFrom abind asub
 displayTiles = function(img, lwd = 10) {
   tiles = tile(img, nx = numberOfFrames(img, "render"), lwd = lwd, fg.col = "white")
-  dt = dim(tiles) - lwd
+  dt = dim(tiles) - 2*lwd
   tiles = asub(tiles, list(lwd+1:dt[1L], lwd+1:dt[2L]), c(1L, 2L))
   display(tiles)
 }

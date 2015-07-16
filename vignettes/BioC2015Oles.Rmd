@@ -1,30 +1,27 @@
 ---
-title: "Basics of image data and spatial patterns analysis in R EBImage"
+title: "Basics of image data and spatial patterns analysis in *R*"
 author: "Andrzej Oleś and Wolfgang Huber"
-date: '`r format(Sys.Date(), "%d %B %Y")`'
+date: 21 July | BioC 2015
 output:
   ioslides_presentation:
     fig_retina: null
     css: style.css
     widescreen: false
 bibliography: BioC2015Oles.bib
+nocite: | 
+  @Pau2010, @Haralick1979, @Jones2005
 vignette: >
-  %\VignetteIndexEntry{Basics of image data and spatial patterns analysis in EBImage}
+  %\VignetteIndexEntry{Basics of image data and spatial patterns analysis in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 ```{r echo=FALSE, message=FALSE}
 library(BioC2015Oles)
-library(EBImage)
-f = system.file("images", "sample.png", package="EBImage")
-img = readImage(f)
-.dim = dim(img)
-.dpi = 100
-
 library(knitr)
-opts_chunk$set(error=FALSE)
 
+opts_chunk$set(error=FALSE)
 set.seed(7)
+.dpi = 100
 ```
 
 ## Goals for this workshop
@@ -35,7 +32,7 @@ set.seed(7)
 
 - Understand how to apply filters and transformations to images
 
-- Combine these skills to do segmentation and feature extraction on microscopy images
+- Apply these skills to microscopy images of cells to do segmentation and feature extraction
 
 - Explore spatial distributions of the position of cells
 
@@ -52,28 +49,27 @@ set.seed(7)
 
 Since *Bioconductor* 1.8 (2006)
 
-<table width="100%" style="font-size: 80%;">
+<table width="100%" style="font-size: 90%;">
 <tr><td style="vertical-align: bottom;">
-<h3>Original developers:</h3>
-Oleg Sklyar<br/>
-Wolfgang Huber<br/>
-Mike Smith<br/>
-Gregoire Pau<br/>
+### Original developers:
+Oleg Sklyar  
+Wolfgang Huber  
+Mike Smith  
+Gregoire Pau  
 </td><td style="vertical-align: bottom;">
-<h3>Contributors:</h3>
-Joseph Barry<br/>
-Bernd Fischer<br/>
-Ilia Kats<br/>
-Philip A. Marais<br/>
+### Contributors:
+Joseph Barry  
+Bernd Fischer  
+Ilia Kats  
+Philip A. Marais  
 </td><td style="vertical-align: bottom;">
 ![EBImage-logo](images/logo.png)
-</td>
-</tr>
+</td></tr>
 </table>
 
 ## Let's get started!
 
-```{r, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
+```{r, message=FALSE, fig.width=768/.dpi, fig.height=512/.dpi, dpi=.dpi/2}
 library(EBImage)
 
 f = system.file("images", "sample.png", package="EBImage")
@@ -88,7 +84,7 @@ display(img)
 
 ### Reading images
 
-Images can be read from local files or URLs
+Images can be read from local files or URLs.
 
 ```{r, fig.width=480/.dpi, fig.height=138/.dpi, dpi=.dpi, eval=FALSE}
 bioc = readImage("http://www.bioconductor.org/images/logo/jpg/bioconductor_logo_rgb.jpg")
@@ -100,7 +96,7 @@ display(bioc)
 ![RBioFormats](images/RBioFormats-logo.png)
 </td><td style="padding: 20px;">
 *EBImage* supports JPEG, PNG and TIFF file formats.  
-For reading proprietary microscopy image data and metadata use [RBioFormats](https://github.com/aoles/RBioFormats).
+For reading proprietary microscopy image data and metadata use *[RBioFormats](https://github.com/aoles/RBioFormats)*.
 </td></tr>
 </table>
 
@@ -108,10 +104,10 @@ For reading proprietary microscopy image data and metadata use [RBioFormats](htt
 
 ### Displaying images
 
-- using the interactive JavaScript viewer
-- on R's build-in plotting device
+- interactive JavaScript viewer
+- *R*'s build-in plotting device
 
-<font style="font-size: 80%;">The default `display` method can be set by `options(EBImage.display)`</font>
+<font style="font-size: 90%;">The default `display` method can be set by `options(EBImage.display)`.</font>
 
 ```{r, eval=FALSE}
 options(EBImage.display = "raster")
@@ -126,7 +122,7 @@ text(x = 20, y = 20, label = "Parrots", adj = c(0,1), col = "orange", cex = 2)
 filename = "parrots.jpg"
 dev.print(jpeg, filename = filename , width = dim(img)[1], height = dim(img)[2])
 ```{r}
-file.info(filename)$size
+file.size(filename)
 ```
 
 ## Writing images
@@ -147,23 +143,21 @@ data.frame(row.names=files, size=file.size(files))
 
 <table width="100%">
 <tr><td style="vertical-align: top;">
-Multi-dimensional pixel intensity arrays
+Multi-dimensional pixel intensity arrays&nbsp;
 
-<div style="font-size:80%">
 - (x, y)   
 - (x, y, **<font class=orange>z</font>**) z-stack
 - (x, y, **<font class=orange>t</font>**) time-lapse
 - (x, y, **<font class=orange>c</font>**) channels
 - (x, y, c, z, t, ...)
-</div>
 
 </td><td>
-<div style="width:360px;">![sample](images/sample.svg)</div>
+![sample](images/sample.png)
 </td></tr>
 <tr><td style="vertical-align: top;">
-<div style="width:250px;">![replicates](images/replicates.svg)</div>
+![replicates](images/replicates.png)
 </td><td>
-![sample-rgb](images/sample-rgb.svg)
+![sample-rgb](images/sample-rgb.png)
 </td></tr>
 </table>
 
@@ -220,7 +214,7 @@ Being numeric arrays, images can be conveniently manipulated by any of *R*'s ari
 
 ### Cropping 
 
-```{r fig.width=384L/.dpi, fig.height=384L/.dpi, dpi=.dpi/2}
+```{r, fig.width=384L/.dpi, fig.height=384L/.dpi, dpi=.dpi/2}
 img = img[366:749, 58:441]
 ```
 
@@ -228,7 +222,7 @@ img = img[366:749, 58:441]
 
 ```{r negative, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
 img_neg = max(img) - img
-display( img_neg )
+display(img_neg)
 ```
 
 ## Manipulating images
@@ -279,11 +273,9 @@ display(img_translate)
 ### Rotation
 
 ```{r rotate-pre, echo=FALSE}
-img_rotate = rotate(img, 30, bg.col = "white")
-```{r rotate, eval=FALSE}
+img_rotate = rotate(img, 30)
+```{r rotate, fig.width=dim(img_rotate)[1L]/.dpi, fig.height=dim(img_rotate)[2L]/.dpi, dpi=.dpi/2}
 img_rotate = rotate(img, angle = 30, bg.col = "white")
-display(img_rotate)
-```{r rotate-post, echo=FALSE, fig.width=dim(img_rotate)[1L]/.dpi, fig.height=dim(img_rotate)[2L]/.dpi, dpi=.dpi/2}
 display(img_rotate)
 ```
 
@@ -311,7 +303,7 @@ display( flop(img) )
 
 Described by a 3x2 transformation matrix $\textbf{m}$
 
-<div style="font-size:75%">
+<div style="font-size:80%">
 $$\begin{bmatrix} x'_1 & y'_1 \\
 x'_2 & y'_2 \\
 \vdots & \vdots \\
@@ -333,24 +325,24 @@ $$\textbf{m}_{\text{translation}}=\begin{bmatrix} 1 & 0 \\ 0 & 1 \\ t_x & t_y \\
 
 ```{r, fig.width=dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2}
 angle = pi/6
-m = matrix(c(1, -sin(angle), sin(angle)*dim(img)[2]/2, 0, 1, 0), nrow=3, ncol=2)
+m = matrix(c(1, -sin(angle), sin(angle)*dim(img)[2]/2, 0, 1, 0), nrow = 3, ncol = 2)
 m
 img_affine = affine(img, m)
-display( img_affine )
+display(img_affine)
 ```
 
 ## Image transposition
 
 ```{r transpose, fig.width=dim(imgcol)[2L]/.dpi, fig.height=dim(imgcol)[1L]/.dpi, dpi=.dpi/2}
 imgcol_t = transpose(imgcol)
-display( imgcol_t )
+display(imgcol_t)
 ```
 
 ## Linear filters
 
 <div style="margin-top: -20px;"></div>
 
-### Removing local artifacts or noise - average in a rectangular window
+### Removing local artifacts or noise -- average in a rectangular window
 
 <div style="font-size:80%">
 $$ f'(x,y) = \frac{1}{N} \sum_{s=-a}^{a}\sum_{t=-a}^{a} f(x+s, y+t),$$
@@ -367,7 +359,7 @@ averaged over, and $f'$ is the new, smoothed image.
 $$ (w * f)(x,y) = \sum_{s=-\infty}^{+\infty} \sum_{t=-\infty}^{+\infty} w(s,t)\, f(x+s, y+s) $$
 
 - convolution of the images $f$ and $w$, indicated by $*$
-- linear: for any two images $f_1$, $f_2$ and numbers $c_1$, $c_2$. we have $$w*(c_1f_1+c_2f_2)=c_1w*f_1 + c_2w*f_2$$
+- linear: for any two images $f_1$, $f_2$ and numbers $c_1$, $c_2$ $$w*(c_1f_1+c_2f_2)=c_1w*f_1 + c_2w*f_2$$
 </div>
 
 ## Generating the weight function
@@ -385,12 +377,11 @@ plot(w[(nrow(w)+1)/2, ], ylab = "w", xlab = "")
 
 Other available brush shapes: `"box"` (default), `"disc"`, `"diamond"`, `"line"`
 
-
 ## Low-pass filtering
 
 2D linear convolution is implemented by `filter2` (uses FFT)
 
-<font class=blue>Example:</font> Smoothening an image using a Gaussian filter of width 5
+<font class=blue>Example:</font> Smoothing an image using a Gaussian filter of width 5
 
 ```{r, echo=FALSE}
 opts_knit$set(global.par=FALSE)
@@ -435,27 +426,29 @@ Non-linear noise removal technique
 - particularly effective in the case of speckle noise
 - preserves edges
 
-```{r medianFilter, fig.width=2*dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2, eval=FALSE}
+```{r medianFilter, fig.width=2*dim(img)[1L]/.dpi, fig.height=dim(img)[2L]/.dpi, dpi=.dpi/2, eval=TRUE}
 l = length(img)
 n = l/10
 img_noisy = img
-img_noisy[sample(l, n)] = runif(n, min=0, max=1)
+img_noisy[sample(l, n)] = runif(n, min = 0, max = 1)
 img_median = medianFilter(img_noisy, size = 1)
 
 display( combine(img_noisy, img_median), all=TRUE)
 ```
 
-<div style="font-size:80%">Implemented using the constant time algorithm [@Perreault2007].</div>
+<div style="font-size:90%">Implemented using the constant time algorithm [@Perreault2007].</div>
 
-
-## Morphological operations
+## Morphological operations {.noiterpolation}
 
 Non-linear filtering of binary images 
 
 - <font class=blue>erosion:</font> for every <font class=orange>fg</font> pixel, put the mask around it, and if any pixel under the mask is from the <font class=orange>bg</font>, set all these pixels to <font class=orange>bg</font>.
 - <font class=blue>dilation</font>: for every <font class=orange>bg</font> pixel, put the mask around it, and if any pixel under the mask is from the <font class=orange>fg</font>, set all these pixels to <font class=orange>fg</font>.
 
-```{r, fig.width=(3*56+4*5)/.dpi, fig.height=(56+2*5)/.dpi, dpi=.dpi, out.width=2*(3*56+4*5)}
+```{r echo=FALSE}
+leaf = readImage( system.file('images', 'leaf.png', package='BioC2015Oles') )
+.leafDim = BioC2015Oles:::tilesDim(dim(leaf), 3)
+```{r, fig.width=.leafDim[1]/.dpi, fig.height=.leafDim[2]/.dpi, dpi=.dpi, out.width=2*.leafDim[1], results='hide'}
 leaf = readImage( system.file('images', 'leaf.png', package='BioC2015Oles') )
 kern = makeBrush(size = 3)
 morph = combine(
@@ -464,24 +457,24 @@ morph = combine(
   dilate(leaf, kern)
 )
 
-display( tile(morph, nx = numberOfFrames(morph), lwd = 5, fg.col = "white") ) 
+displayTiles(morph)
 ```
 
-## Morphological operations
+## Morphological operations {.noiterpolation}
 
 - **<font class=blue>opening</font>:** erosion followed by dilation  
   removes small objects from the background
 - **<font class=blue>closing</font>:** dilation followed by erosion  
   fills holes in the foreground
 
-```{r, fig.width=(3*56+4*5)/.dpi, fig.height=(56+2*5)/.dpi, dpi=.dpi, out.width=2*(3*56+4*5)}
+```{r, fig.width=.leafDim[1]/.dpi, fig.height=.leafDim[2]/.dpi, dpi=.dpi, out.width=2*.leafDim[1]}
 morph = combine(
   leaf,
   opening(leaf, kern),
   closing(leaf, kern)
 )
 
-display( tile(morph, nx = numberOfFrames(morph), lwd = 5, fg.col = "white") ) 
+displayTiles(morph) 
 ```
 
 ## Application in cell biology
@@ -500,7 +493,7 @@ print(tub, short=TRUE)
 display( combine(getFrame(dna, 3), getFrame(tub, 3)), all=TRUE )
 ```{r, fig.width=BioC2015Oles:::tilesDim(dim(dna), numberOfFrames(dna))[1L]/.dpi, fig.height=BioC2015Oles:::tilesDim(dim(dna), numberOfFrames(dna))[2L]/.dpi, dpi=.dpi/3}
 rgb = rgbImage(green = 1.5 * tub, blue = dna)
-displayTiles( rgb )
+displayTiles(rgb)
 ```
 
 ## Nuclei segmentation
@@ -526,7 +519,7 @@ display( combine(getFrame(nmaskt, 3), getFrame(nmaskf, 3)), all=TRUE )
 dmap = distmap(nmaskf)
 range(dmap)
 
-display( normalize(dmap), frame = 3)
+display(normalize(dmap), frame = 3)
 ```
 
 ## Nuclei segmentation
@@ -534,7 +527,7 @@ display( normalize(dmap), frame = 3)
 ### Watershed transformation
 
 ```{r, fig.width=2*dim(nuc)[1L]/.dpi, fig.height=dim(nuc)[2L]/.dpi, dpi=.dpi/2}
-nmask  = watershed(dmap, tolerance = 2)
+nmask = watershed(dmap, tolerance = 2)
 
 display( combine(
   toRGB( getFrame(dna, 3) ), 
@@ -566,7 +559,7 @@ Voronoi diagram is a partitioning of a plane into regions based on distance to s
 ### Voronoi tesselation on a Riemann manifold
 
 - arbitrary shape (provided in `mask`)
-- arbitrary metric (dependance on image gradient $z$)
+- arbitrary metric (dependent on image gradient $z$)
 
 <div style="font-size: 90%">
 
@@ -587,16 +580,16 @@ $\lambda$ controls the weight of the Euclidean distance term
 
 ```{r, fig.width=2*dim(nuc)[1L]/.dpi, fig.height=2*dim(nuc)[2L]/.dpi, dpi=.dpi/2}
 display( paintObjects(nmask,
-            paintObjects(cmask, rgb, col="magenta", thick=TRUE),
-         col="yellow", thick=TRUE), all = TRUE)
+            paintObjects(cmask, rgb, col = "magenta", thick = TRUE),
+         col = "yellow", thick = TRUE), all = TRUE)
 ```
 
 ## Individual cells stacked
 
-```{r, fig.width=2*dim(nuc)[1L]/.dpi, fig.height=2*dim(nuc)[2L]/.dpi, dpi=.dpi/2}
+```{r, fig.width=2*dim(nuc)[1L]/.dpi, fig.height=2*dim(nuc)[2L]/.dpi, dpi=.dpi/2, eval=TRUE}
 st = stackObjects(cmask, rgb)
 
-display(st, all=TRUE)
+display(st, all = TRUE)
 ```
 
 ## Feature extraction
@@ -614,10 +607,234 @@ head( computeFeatures.shape(cmask[,,1], tub[,,1]) )
 
 ## Automated cellular phenotyping
 
-Using multivariate analysis methods we can 
+Using multivariate analysis methods we can:
 
 - detect cell subpopulations (clustering)
 - classify cells into pre-defined cell types or phenotypes (classification)
-- based on the frequencies of the subpopluations compare different biological conditions
+- based on the frequencies of the subpopulations compare different biological conditions
 
-## References
+<br/>
+
+<div class="centered">![pipeline](images/pipeline.png)</div>
+
+# Spatial statistics: point processes 
+
+## Interaction between immune and cancer cells 
+
+Lymph nodes
+
+- immunologic filter composed of B cells, T cells, dendric cells (DC) and macrophages
+- clinical significance in cancer staging (the *sentinel* lymph node)
+
+<table style="border-spacing: 30px; border-collapse: separate;">
+<tr><td>
+```{r, echo=FALSE}
+.lymphnode = readImage( system.file("images", "testscan_1_2_RGB99-4525D.jpg", package = "BioC2015Oles") )
+```{r, echo=FALSE, fig.width=dim(.lymphnode)[1L]/(4*.dpi), fig.height=dim(.lymphnode)[2L]/(4*.dpi), dpi=.dpi}
+display(.lymphnode)
+```
+</td><td style="vertical-align: bottom">
+<div style="font-size:80%">
+Breast cancer lymph node biopsy [@Setiadi2010].
+
+Cell typing was done by staining the cells with protein antibodies that provide specific signatures.
+</div>
+</td></tr>
+</table>
+
+## Lymph node biopsies
+
+```{r}
+data(brcalymphnode, package = "BioC2015Oles")
+head(brcalymphnode)
+nrow(brcalymphnode)
+table(brcalymphnode$class)
+```
+
+## Spatial distribution of cells
+
+Plot of the *x* and *y* positions of the T cells (left) and tumor cells (right)
+
+```{r, fig.width=7, fig.height=3.5}
+par(mfrow = c(1, 2), mar = c(4.5, 4.5, 0.5, 0.5))
+xlim = range(brcalymphnode$x)
+ylim = range(brcalymphnode$y)
+cols = c(`T_cells` = "dodgerblue4", `Tumor` = "darkmagenta")
+for(i in seq_along(cols))
+  plot(subset(brcalymphnode, class==names(cols)[i])[, c("x", "y")], 
+       pch = ".", asp = 1, xlim = xlim, ylim = ylim, col = cols[i])
+```
+
+## Analysis of spatial point patterns
+
+Marked spatial point process:
+
+- set of isolated points located in a mathematical space (`xlim`, `ylim`)
+- points marked with certain properties (factor `class`)
+
+
+```{r, message=FALSE}
+library("spatstat")
+
+ln = with(brcalymphnode, 
+  ppp(x = x, y = y, marks = class, xrange = xlim, yrange = ylim)
+)
+
+ln
+```
+
+## Convex hull
+
+```{r, fig.width=2, fig.height=2}
+chull = convexhull(ln)
+
+par(mar = c(0, 0, 0, 0))
+plot(Window(ln), main = NULL, asp = 1)
+plot(chull, lty = 2, col = "lightblue", add = TRUE)
+Window(ln) = chull
+ln
+```
+
+## First order effects: the intensity
+
+- Number of points lying in a circle of area $a$ around a point $p=(x,y)$
+$$N(p, a)$$
+
+- Local intensity
+$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a}$$
+
+- For a *stationary* process, i.e., homogeneous all over the region
+$$\lambda(p) = \text{const.}$$
+Then the intensity in an area $A$ is proportional to the area
+$$E(N(\cdot, A)) = \lambda A$$ 
+
+## Estimating the intensity
+
+Kernel smoothed intensity estimate of a point pattern [@Diggle1985]
+<div style="font-size:90%">
+$$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i)$$
+where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
+</div>
+
+```{r density.ppp1, fig.width=5.25, fig.height=2.65}
+densities = solist( 
+  `Diggle's edge correction` = density(subset(ln, marks=="Tumor"), diggle = TRUE),
+  `No edge correction`       = density(subset(ln, marks=="Tumor"), edge = FALSE)
+)
+plot(densities, equal.ribbon = TRUE, col = topo.colors, main = "")
+```
+
+## Probability of cell classes
+
+Estimate of the spatially-varying probability of a particular event type
+
+```{r, fig.width=9.5, fig.height=2.8}
+rr = relrisk(ln, sigma = 250)
+
+plot(rr, equal.ribbon = TRUE, col = topo.colors, nrows = 1, main = "")
+```
+
+## Second order effects: clustering
+
+Spatial clustering (or anticlustering) of points: whether and to what extent neighboring points are more/less dense than expected by chance.
+
+### Poisson process
+
+<div style="font-size: 90%;">
+- stationary with intensity $\lambda$
+- no dependency between occurrences of objects in non-overlapping regions
+- $N(p, A)$ follows a Poisson distribution with rate $\lambda A$
+</div>
+
+### The nearest neighbour (NN) distance distribution function $G$
+
+Cumulative distribution function of the distance $W$ from a typical random point to its nearest neighbor. For a Poisson process
+
+<font style="font-size:90%">$$G(r) = P(W \leq r) = 1-e^{-\lambda \pi r^2}$$</font>
+
+## Estimation of the NN distance function *G*
+
+```{r Gest}
+gln = Gest(ln)
+gln
+```   
+
+## Estimation of the NN distance function *G*
+
+```{r, fig.width=4, fig.height=4, message=FALSE}
+library(RColorBrewer)
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+
+plot(gln, lty = 1, col = brewer.pal(4, "Set1"), main = "")
+```
+
+<div style="font-size: 90%;">
+- effect of finite cell size
+- clustering at large distances
+</div>
+
+## Ripley's *K*-function
+
+For a stationary point process $\lambda K(r)$ is the expected number of 
+additional points within a distance $r$ of a given, randomly picked point. 
+
+### Generalization to inhomogenous point processes
+
+<div style="font-size:90%">
+$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$
+</div>
+where $d(p_i, p_j)$ is the distance between points $p_i$ and $p_j$, and 
+$e(p_i, p_j, r)$ is an edge correction factor.
+
+More useful for estimation and visualization is the $L$-function
+<div style="font-size:90%">
+$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$
+</div>
+For a Poisson point pattern, the theoretical value is $L(r) = r$. 
+
+## Estimate of the inhomogeneous *L*-function
+
+```{r, eval=FALSE}
+Lln = Linhom( subset(ln, marks=="T_cells") )
+Lln
+```{r, echo=FALSE}
+data(Lln, package = "BioC2015Oles")
+Lln
+```
+
+## Estimate of the inhomogeneous *L*-function
+
+```{r, fig.width=4.5, fig.height=4.5}
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+
+plot(Lln, lty = 1, col = brewer.pal(3, "Set1"), main = "")
+```   
+
+## Pair correlation function
+
+Describes how point density varies as a function of distance from a reference point.
+<div style="font-size:90%">
+$$g(r)=\frac{1}{2\pi r}\frac{dK}{dr}(r)$$
+</div>
+For a stationary Poisson process $g(r) = 1$. 
+
+<div style="font-size: 90%;">
+- $g(r) < 1$ -- inhibition between points
+- $g(r) > 1$ -- clustering
+</div>
+
+## Pair correlation function
+
+```{r, eval=FALSE}
+pcfln = pcf( Kinhom(subset(ln, marks=="T_cells")) )
+
+plot(pcfln, lty = 1, log = "x")
+```{r, fig.width=4.5, fig.height=4.5, echo=FALSE}
+par(mar = c(4.5, 4.5, 0.5, 0.5))
+
+data(pcfln, package = "BioC2015Oles")
+plot(pcfln, lty = 1, log = "x", main = "")
+```
+
+## References {.smaller}
+

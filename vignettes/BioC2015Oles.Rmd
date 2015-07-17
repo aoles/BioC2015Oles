@@ -316,7 +316,7 @@ display( flop(img) )
 
 Described by a 3x2 transformation matrix $\textbf{m}$
 
-<div style="font-size:75%">
+<div style="font-size:80%">
 $$\begin{bmatrix} x'_1 & y'_1 \\
 x'_2 & y'_2 \\
 \vdots & \vdots \\
@@ -577,7 +577,7 @@ Voronoi diagram is a partitioning of a plane into regions based on distance to s
 <div style="font-size: 90%">
 
 Distance between points $(x, y, z)$ and $(x+dx, y+dy, z+dz)$
-<font style="font-size: 90%">
+<font class=scaledmath>
 $$
 ds = \sqrt{ \frac{2}{\lambda+1} \left[ \lambda \left( dx^2 + dy^2 \right) + dz^2 \right] }
 $$
@@ -710,20 +710,20 @@ ln
 ## First order effects: the intensity
 
 - Number of points lying in a circle of area $a$ around a point $p=(x,y)$
-<font style="font-size: 90%">$$N(p, a)$$</font>
+<font class=scaledmath>$$N(p, a)$$</font>
 
 - Local intensity
-<font style="font-size: 90%">$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a}$$</font>
+<font class=scaledmath>$$\lambda(p) = \lim_{a\rightarrow 0} \frac{E[ N(p, a)]}{a}$$</font>
 
 - For a *stationary* process, i.e., homogeneous all over the region
-<font style="font-size: 90%">$$\lambda(p) = \text{const.}$$</font>
+<font class=scaledmath>$$\lambda(p) = \text{const.}$$</font>
 Then the intensity in an area $A$ is proportional to the area
-<font style="font-size: 90%">$$E(N(\cdot, A)) = \lambda A$$</font>
+<font class=scaledmath>$$E(N(\cdot, A)) = \lambda A$$</font>
 
 ## Estimating the intensity
 
 Kernel smoothed intensity estimate of a point pattern [@Diggle1985]
-<div style="font-size:90%">
+<div class=scaledmath>
 $$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i)$$
 where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
 </div>
@@ -762,7 +762,7 @@ Spatial clustering (or anticlustering) of points: whether and to what extent nei
 
 Cumulative distribution function of the distance $W$ from a typical random point to its nearest neighbor. For a Poisson process
 
-<font style="font-size:90%">$$G(r) = P(W \leq r) = 1-e^{-\lambda \pi r^2}$$</font>
+<font class=scaledmath>$$G(r) = P(W \leq r) = 1-e^{-\lambda \pi r^2}$$</font>
 
 ## Estimation of the NN distance function *G*
 
@@ -793,14 +793,14 @@ additional points within a distance $r$ of a given, randomly picked point.
 ### Generalization to inhomogenous point processes
 
 <div style="font-size:90%">
-<font style="font-size: 90%">$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$</font>
+<font class=scaledmath>$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$</font>
 </div>
 where $d(p_i, p_j)$ is the distance between points $p_i$ and $p_j$, and 
 $e(p_i, p_j, r)$ is an edge correction factor.
 
 More useful for estimation and visualization is the $L$-function
 <div style="font-size:90%">
-<font style="font-size: 90%">$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$</font>
+<font class=scaledmath>$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$</font>
 </div>
 For a Poisson point pattern, the theoretical value is $L(r) = r$. 
 

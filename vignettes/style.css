@@ -59,3 +59,6 @@ pre.prettyprint+pre {
   image-rendering:optimize-contrast;         /* CSS3 Proposed                  */
   -ms-interpolation-mode:nearest-neighbor;   /* IE8+                           */
 }
+.scaledmath {
+   font-size: 90%;
+}

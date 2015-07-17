@@ -449,7 +449,7 @@ img_median = medianFilter(img_noisy, size = 1)
 display( combine(img_noisy, img_median), all=TRUE)
 ```
 
-<div style="font-size:90%">Implemented using the constant time algorithm [@Perreault2007].</div>
+<font style="font-size:90%">Implemented using the constant time algorithm [@Perreault2007].</font>
 
 ## Morphological operations {.noiterpolation}
 
@@ -723,10 +723,10 @@ Then the intensity in an area $A$ is proportional to the area
 ## Estimating the intensity
 
 Kernel smoothed intensity estimate of a point pattern [@Diggle1985]
-<div class=scaledmath>
+<font class=scaledmath>
 $$\hat{\lambda}(p) = \sum_i e(p_i) K(p-p_i)$$
 where $K$ is the Gaussian smoothing kernel, and $e(p_i)$ is an edge correction factor.
-</div>
+</font>
 
 ```{r density.ppp1, fig.width=5.25, fig.height=2.65}
 densities = solist( 
@@ -792,17 +792,17 @@ additional points within a distance $r$ of a given, randomly picked point.
 
 ### Generalization to inhomogenous point processes
 
-<div style="font-size:90%">
-<font class=scaledmath>$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$</font>
-</div>
+<div class=scaledmath>$$K_{\text{inhom}}(r) = \sum_{i,j} {\mathbf 1}_{d(p_i, p_j) \le r} \times \frac{e(p_i, p_j, r)} { \lambda(x_i)  \lambda(x_j) },$$
+
 where $d(p_i, p_j)$ is the distance between points $p_i$ and $p_j$, and 
 $e(p_i, p_j, r)$ is an edge correction factor.
 
 More useful for estimation and visualization is the $L$-function
-<div style="font-size:90%">
-<font class=scaledmath>$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$</font>
-</div>
+
+$$L(r)=\sqrt{\frac{K(r)}{\pi}}.$$
+
 For a Poisson point pattern, the theoretical value is $L(r) = r$. 
+</div>
 
 ## Estimate of the inhomogeneous *L*-function
 
@@ -825,12 +825,11 @@ plot(Lln, lty = 1, col = brewer.pal(3, "Set1"), main = "")
 ## Pair correlation function
 
 Describes how point density varies as a function of distance from a reference point.
-<div style="font-size:90%">
+<div class=scaledmath>
 $$g(r)=\frac{1}{2\pi r}\frac{dK}{dr}(r)$$
-</div>
+
 For a stationary Poisson process $g(r) = 1$. 
 
-<div style="font-size: 90%;">
 - $g(r) < 1$ -- inhibition between points
 - $g(r) > 1$ -- clustering
 </div>

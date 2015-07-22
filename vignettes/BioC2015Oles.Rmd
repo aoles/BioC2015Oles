@@ -635,7 +635,7 @@ Using multivariate analysis methods we can:
 
 Lymph nodes
 
-- immunologic filter composed of B cells, T cells, dendric cells (DC) and macrophages
+- immunologic filter composed of B cells, T cells, dendritic cells (DC) and macrophages
 - clinical significance in cancer staging (the *sentinel* lymph node)
 
 <table style="border-spacing: 30px; border-collapse: separate;">
